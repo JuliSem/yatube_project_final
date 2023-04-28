@@ -125,5 +125,3 @@ CACHES = {
         'KEY_PREFIX': 'index_page',
     }
 }
-
-
