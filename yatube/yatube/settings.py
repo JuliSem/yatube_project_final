@@ -119,9 +119,6 @@ CACHE_STORAGE_TIME_IN_SEC = 20
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'posts_cache'),
-        'TIMEOUT': CACHE_STORAGE_TIME_IN_SEC,
-        'KEY_PREFIX': 'index_page',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
