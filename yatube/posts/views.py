@@ -10,7 +10,7 @@ from .utils import short_paginator
 
 @cache_page(CACHE_STORAGE_TIME_IN_SEC, key_prefix='index_page')
 def index(request):
-    post_list = Post.objects.select_related('author', 'group').all()
+    post_list = Post.objects.select_related('author', 'group')
     page_obj = short_paginator(request, post_list)
     context = {
         'page_obj': page_obj,
@@ -34,12 +34,9 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_list = author.posts.all()
     page_obj = short_paginator(request, post_list)
-    if request.user.is_authenticated and author.following.filter(
-        user=request.user
-    ).exists():
-        following = True
-    else:
-        following = False
+    following = request.user.is_authenticated and Follow.objects.filter(
+        user=request.user, author=author
+    ).exists()
     context = {
         'author': author,
         'page_obj': page_obj,
@@ -128,5 +125,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    Follow.objects.filter(user=request.user, author=author).delete()
-    return redirect('posts:follow_index')
+    follow_queryset = Follow.objects.filter(user=request.user, author=author)
+    if follow_queryset.exists():
+        follow_queryset.delete()
+    return redirect('posts:profile', username=username)
