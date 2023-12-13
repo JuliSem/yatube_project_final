@@ -1,41 +1,93 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
+{% load static %}
 {% block title %}
-  {% if post.author.username %}
-    Профайл пользователя {{ post.author.username }}
-  {% endif %}  
+  Профайл пользователя
+  {% if author.get_full_name %}
+    {{ author.get_full_name }}
+  {% else %}
+    {{ author.username }}
+  {% endif %}
 {% endblock %}
 {% block content %}
-<div class="mb-5">
-  <h1>
-    Все посты пользователя 
-    {% if post.author.get_full_name %}
-      {{ post.author.get_full_name }}
-    {% else %}
-      {{ post.author.username }}
+  <div class="mb-5">
+    <h1 class="text-center">
+      {% if author.get_full_name %}
+        {{ author.get_full_name }}
+      {% else %}
+        {{ author.username }}
+      {% endif %}
+    </h1>
+    <h5 class="text-center">
+      Количество постов: {{ author.posts.count }}
+    </h5>
+    {% if request.user != author %}
+      {% if following %}
+        {% comment %} <button
+          type="button"
+          class="btn btn-sm btn-light text-center"
+          href="{% url 'posts:profile_unfollow' author.username %}"
+        >
+          Отписаться
+        </button> {% endcomment %}
+        <a
+          class="btn btn-sm btn-light mx-auto"
+          href="{% url 'posts:profile_unfollow' author.username %}" role="button"
+        >
+          Отписаться
+        </a>
+      {% else %}
+        {% comment %} <button
+          type="button"
+          class="btn btn-sm btn-primary text-center"
+          href="{% url 'posts:profile_follow' author.username %}"
+        >
+          Подписаться
+        </button> {% endcomment %}
+        <a
+          class="btn btn-sm btn-primary mx-auto"
+          href="{% url 'posts:profile_follow' author.username %}" role="button"
+        >
+          Подписаться
+        </a>
+      {% endif %}
     {% endif %}
-  </h1>
-  <h3>Всего постов: {{ author.posts.count }} </h3>
-  {% if request.user != author %}
-    {% if following %}
-      <a
-        class="btn btn-lg btn-light"
-        href="{% url 'posts:profile_unfollow' author.username %}" role="button"
-      >
-        Отписаться
-      </a>
-    {% else %}
-      <a
-        class="btn btn-lg btn-primary"
-        href="{% url 'posts:profile_follow' author.username %}" role="button"
-      >
-        Подписаться
-      </a>
-    {% endif %}
-  {% endif %}
-</div>
+  </div>
   {% for post in page_obj %}
-    <article>
+    <div class="card" style="margin-bottom: 40px; box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5)">
+      <div class="card-header" style="background-color: lightskyblue">
+        {{ post.pub_date|date:"d E Y" }}
+      </div>
+      <div class="card-body">
+        {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+          <img class="card-img my-2" src="{{ im.url }}">
+        {% endthumbnail %}
+        <p>{{ post.text }}</p>
+        <a href="{% url 'posts:post_detail' post.pk %}">
+          подробная информация
+        </a>
+      </div>
+      <div class="card-footer">
+        {% if post.group %}
+        <p>
+          <a href="{% url 'posts:profile' post.author.username %}">
+            {{ post.author.get_full_name }}
+          </a>
+          написал в группу
+          <a href="{% url 'posts:group_posts' post.group.slug %}">
+            {{ post.group }}
+          </a>
+        </p>
+        {% else %}
+        <p>
+          <a href="{% url 'posts:profile' post.author.username %}">
+            {{ post.author.get_full_name }}
+          </a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+    {% comment %} <article>
       <ul>
         <li>
           {% if post.author.get_full_name %}
@@ -64,7 +116,7 @@
           все записи группы
         </a>
       </li>
-    {% endif %}
+    {% endif %} {% endcomment %}
     {% if not forloop.last %} <hr> {% endif %}
   {% endfor %}
   {% include 'posts/includes/paginator.html' %}

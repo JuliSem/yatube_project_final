@@ -1,39 +1,45 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
 {% load static %}
-{% block title %}Последние обновления на сайте{% endblock %}
+{% block title %}Главная страница{% endblock %}
 {% block content %}
-  <div class="container py-5">
-    <h1>Последние обновления на сайте</h1>
+  <div>
+    <h2 class="text-center">Добро пожаловать на сайт Yatube!</h2>
+    <div class="container py-5">
     {% include 'posts/includes/switcher.html' %}
     {% for post in page_obj %}
-    <article>
-      <ul>
-        <li>
-        {% if post.author.username %}
-          Автор: {{ post.author.get_full_name }}
-          <a href="{% url 'posts:profile' post.author.username %}"> страница автора </a>
+    <div class="card" style="margin-bottom: 40px; box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5)">
+      <div class="card-header" style="background-color: lightskyblue">
+        {{ post.pub_date|date:"d E Y" }}
+      </div>
+      <div class="card-body">
+        {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+          <img class="card-img my-2" src="{{ im.url }}">
+        {% endthumbnail %}
+        <p>{{ post.text }}</p>
+      </div>
+      <div class="card-footer">
+        {% if post.group %}
+        <p>
+          <a href="{% url 'posts:profile' post.author.username %}">
+            {{ post.author.get_full_name }}
+          </a>
+          написал в группу
+          <a href="{% url 'posts:group_posts' post.group.slug %}">
+            {{ post.group }}
+          </a>
+        </p>
         {% else %}
-          Автор: {{ post.author.username }}
-          <a href="{% url 'posts:profile' post.author.username %}"> страница автора </a>
+        <p>
+          <a href="{% url 'posts:profile' post.author.username %}">
+            {{ post.author.get_full_name }}
+          </a>
+        </p>
         {% endif %}
-        </li>
-        <li>
-          Дата публикации: {{ post.pub_date|date:"d E Y" }}
-        </li>
-      </ul>
-      {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-        <img class="card-img my-2" src="{{ im.url }}">
-      {% endthumbnail %}
-      <p>{{ post.text }}</p>
-      {% if post.group %}
-        <a
-          href="{% url 'posts:group_posts' post.group.slug %}"
-        >все записи группы</a>
-      {% endif %}
-    </article>
-    {% if not forloop.last %}<hr>{% endif %}
+      </div>
+    </div>
     {% endfor %}
     {% include 'posts/includes/paginator.html' %}
+  </div>
   </div>
 {% endblock %}

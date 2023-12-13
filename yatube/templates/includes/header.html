@@ -45,8 +45,10 @@
                   {% if view_name  == 'users:logout' %}active{% endif %}"
                 href="{% url 'users:logout' %}">Выйти</a>
             </li>
-            <li>
-              Пользователь: {{ user.get_username }}
+            <li class="nav-item" >
+              <a class="nav-link">
+                Пользователь: {{ user.get_username }}
+              </a>
             </li>
           {% else %}
             <li class="nav-item"> 
