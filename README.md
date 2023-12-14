@@ -8,8 +8,7 @@
 ### Стек технологий:
 
 - Python 3.9.10
-- backend: Django
-- frontend: React
+- Django 2.2.16
 - SQLite
 - pytest
 
